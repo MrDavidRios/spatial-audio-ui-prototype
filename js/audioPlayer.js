@@ -55,9 +55,14 @@ export function playSound(audioFilePath) {
             };
             //Modifies pitch based on provided y-value
             source.detune.value = pitchConst * panner.positionY.value;
-            var gainNode = audioCtx.createGain();
-            gainNode.gain.value = 1 + 0.1 * Math.abs(panner.positionX.value); //Gain increases as distance from center increases to help balance out volume levels
-            source.connect(gainNode).connect(panner).connect(audioCtx.destination);
+            if (panner.positionX.value === 0) {
+                source.connect(audioCtx.destination);
+            }
+            else {
+                var gainNode = audioCtx.createGain();
+                gainNode.gain.value = 12 + 5 * Math.log(Math.abs(panner.positionX.value) - 8); //Gain increases as distance from center increases to help balance out volume levels
+                source.connect(gainNode).connect(panner).connect(audioCtx.destination);
+            }
             source.start(0);
         }));
     });
