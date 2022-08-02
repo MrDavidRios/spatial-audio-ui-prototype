@@ -39,14 +39,11 @@ document.addEventListener('alert-closed', () => {
     alertOpen = false;
 });
 document.addEventListener('keydown', (e) => {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d;
     if (alertOpen)
         return;
     const rowIdx = (_b = (_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.getAttribute('row')) !== null && _b !== void 0 ? _b : -1;
     const columnIdx = (_d = (_c = document.activeElement) === null || _c === void 0 ? void 0 : _c.getAttribute('column')) !== null && _d !== void 0 ? _d : -1;
-    let idx = parseInt(((_e = document.activeElement) !== null && _e !== void 0 ? _e : document.querySelector('[idx="0"]')).getAttribute('idx'));
-    if (!document.activeElement.hasAttribute('idx'))
-        idx = 0;
     const currentPos = rowIdx === -1 || columnIdx === -1 ? { row: 0, column: 0 } : { row: parseInt(rowIdx), column: parseInt(columnIdx) };
     const activeElementName = document.activeElement.nodeName.toLowerCase();
     if (activeElementName === 'input')
@@ -70,18 +67,43 @@ document.addEventListener('keydown', (e) => {
 });
 // Horizontal Navigation
 function getLeftElement(currentElement, row, column) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     const lastSibling = currentElement === currentElement.parentNode.lastElementChild && currentElement.parentNode.childElementCount > 1;
+    if (isLayoutOne()) {
+        if (row === 3 && column === 2) {
+            stayOnBottomOfImg = lastSibling ? '1' : '0';
+            return (_a = document.querySelector(`[row="2"][column="1"]`)) === null || _a === void 0 ? void 0 : _a.parentNode.firstElementChild;
+        }
+        if (row === 2 && column === 1 && stayOnBottomOfImg !== '-1') {
+            const firstChild = stayOnBottomOfImg === '0';
+            stayOnBottomOfImg = '-1';
+            const nextContainerNode = (_b = document.querySelector(`[row="3"][column="0"]`)) === null || _b === void 0 ? void 0 : _b.parentNode;
+            return (firstChild ? nextContainerNode.firstElementChild : nextContainerNode.lastElementChild);
+        }
+    }
     if (lastSibling)
-        return (_a = document.querySelector(`[row="${row}"][column="${column - 1}"]`)) === null || _a === void 0 ? void 0 : _a.parentNode.lastElementChild;
-    return (_b = document.querySelector(`[row="${row}"][column="${column - 1}"]`)) === null || _b === void 0 ? void 0 : _b.parentNode.firstElementChild;
+        return (_c = document.querySelector(`[row="${row}"][column="${column - 1}"]`)) === null || _c === void 0 ? void 0 : _c.parentNode.lastElementChild;
+    return (_d = document.querySelector(`[row="${row}"][column="${column - 1}"]`)) === null || _d === void 0 ? void 0 : _d.parentNode.firstElementChild;
 }
+let stayOnBottomOfImg = '-1';
 function getRightElement(currentElement, row, column) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     const lastSibling = currentElement === currentElement.parentNode.lastElementChild && currentElement.parentNode.childElementCount > 1;
+    if (isLayoutOne()) {
+        if (row === 3 && column === 0) {
+            stayOnBottomOfImg = lastSibling ? '1' : '0';
+            return (_a = document.querySelector(`[row="2"][column="1"]`)) === null || _a === void 0 ? void 0 : _a.parentNode.firstElementChild;
+        }
+        if (row === 2 && column === 1 && stayOnBottomOfImg !== '-1') {
+            const firstChild = stayOnBottomOfImg === '0';
+            stayOnBottomOfImg = '-1';
+            const nextContainerNode = (_b = document.querySelector(`[row="3"][column="2"]`)) === null || _b === void 0 ? void 0 : _b.parentNode;
+            return (firstChild ? nextContainerNode.firstElementChild : nextContainerNode.lastElementChild);
+        }
+    }
     if (lastSibling)
-        return (_a = document.querySelector(`[row="${row}"][column="${column + 1}"]`)) === null || _a === void 0 ? void 0 : _a.parentNode.lastElementChild;
-    return (_b = document.querySelector(`[row="${row}"][column="${column + 1}"]`)) === null || _b === void 0 ? void 0 : _b.parentNode.firstElementChild;
+        return (_c = document.querySelector(`[row="${row}"][column="${column + 1}"]`)) === null || _c === void 0 ? void 0 : _c.parentNode.lastElementChild;
+    return (_d = document.querySelector(`[row="${row}"][column="${column + 1}"]`)) === null || _d === void 0 ? void 0 : _d.parentNode.firstElementChild;
 }
 // Vertical Navigation
 function getElementAbove(currentElement, row, column) {
@@ -102,4 +124,7 @@ function getGrandchildren(element) {
     const children = Array.from(element.children);
     const grandchildren = [].concat.apply([], children.map((e) => Array.from(e.children)));
     return grandchildren;
+}
+function isLayoutOne() {
+    return window.location.href.includes('layout1');
 }
