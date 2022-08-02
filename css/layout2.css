@@ -69,7 +69,3 @@ img {
 	display: flex;
 	justify-content: space-around;
 }
-
-#row1 div:last-of-type {
-	justify-content: flex-start;
-}
