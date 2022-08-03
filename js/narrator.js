@@ -2,6 +2,7 @@
  * Behavior to model:
  * - Left + Right arrow keys -> previous/next element
  */
+import { logKeypress } from './logging.js';
 //Order of navigation:
 //header -> h1
 //nav -> links
@@ -61,6 +62,7 @@ document.addEventListener('keydown', (e) => {
         navigatedElement = getElementAbove(document.activeElement, currentPos.row, currentPos.column);
     else if (e.key === 'ArrowDown')
         navigatedElement = getElementBelow(document.activeElement, currentPos.row, currentPos.column);
+    logKeypress(e.key);
     // Focus upon and click the element that was navigated to
     navigatedElement === null || navigatedElement === void 0 ? void 0 : navigatedElement.focus();
     // navigatedElement?.click();
