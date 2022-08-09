@@ -52,6 +52,9 @@ img {
 
 #row1 div {
 	grid-row: 1;
+
+	display: flex;
+	justify-content: space-between;
 }
 
 #row2 div {
