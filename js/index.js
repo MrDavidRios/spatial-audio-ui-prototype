@@ -1,3 +1,34 @@
+var __awaiter =
+	(this && this.__awaiter) ||
+	function (thisArg, _arguments, P, generator) {
+		function adopt(value) {
+			return value instanceof P
+				? value
+				: new P(function (resolve) {
+						resolve(value);
+				  });
+		}
+		return new (P || (P = Promise))(function (resolve, reject) {
+			function fulfilled(value) {
+				try {
+					step(generator.next(value));
+				} catch (e) {
+					reject(e);
+				}
+			}
+			function rejected(value) {
+				try {
+					step(generator['throw'](value));
+				} catch (e) {
+					reject(e);
+				}
+			}
+			function step(result) {
+				result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+			}
+			step((generator = generator.apply(thisArg, _arguments || [])).next());
+		});
+	};
 import { getBias, playSound, setPannerPosition } from './audioPlayer.js';
 import { logKeypress } from './logging.js';
 import { initTabbableElements } from './narrator.js';
@@ -54,75 +85,64 @@ document.querySelectorAll('a').forEach((node) => {
 });
 const elementsWithSound = ['h1', 'h2', 'h3', 'p', 'a', 'button', 'img', 'hr', 'header', 'main', 'nav', 'div'];
 export function readElement(element) {
-	const elementType = element.nodeName.toLowerCase();
-	const soundFilePath = `./assets/sound/${elementType}.mp3`;
-	const linkSoundFilePath = `./assets/sound/a.mp3`;
-	const bias = getBias(element);
-	const filename = `${element.getAttribute('additionalSoundBite')}.mp3`;
-	const additionalSoundFilePath = `./assets/sound/${getBaseFilePath(elementType)}/${filename}`;
-	const containsAdditionalSoundbite = !additionalSoundFilePath.includes('null.mp3');
-	//Set panner position
-	if (elementsWithSound.includes(elementType) && spatialAudioEnabled) setPannerPosition(bias.x, bias.y);
-	const isLink = element.classList.contains('link');
-	//Play sound file (can log sound cancellation through catch() callback if necessary)
-	switch (elementType) {
-		case 'h1':
-		case 'h2':
-		case 'h3':
-		case 'button':
-			if (containsAdditionalSoundbite) {
-				playSound(additionalSoundFilePath)
-					.then(() => {
-						if (isLink)
-							playSound(soundFilePath)
-								.then(() => {
-									playSound(linkSoundFilePath).catch(() => {});
-								})
-								.catch(() => {});
-						else playSound(soundFilePath).catch(() => {});
-					})
-					.catch((e) => {});
-			} else {
-				if (isLink)
-					playSound(soundFilePath)
-						.then(() => {
-							playSound(linkSoundFilePath).catch(() => {});
-						})
-						.catch(() => {});
-				else playSound(soundFilePath).catch(() => {});
-			}
-			break;
-		case 'p':
-		case 'a':
-		case 'img':
-			playSound(soundFilePath)
-				.then(() => {
+	return __awaiter(this, void 0, void 0, function* () {
+		const elementType = element.nodeName.toLowerCase();
+		const soundFilePath = `./assets/sound/${elementType}.mp3`;
+		const linkSoundFilePath = `./assets/sound/a.mp3`;
+		const bias = getBias(element);
+		const filename = `${element.getAttribute('additionalSoundBite')}.mp3`;
+		const additionalSoundFilePath = `./assets/sound/${getBaseFilePath(elementType)}/${filename}`;
+		const containsAdditionalSoundbite = !additionalSoundFilePath.includes('null.mp3');
+		//Set panner position
+		if (elementsWithSound.includes(elementType) && spatialAudioEnabled) setPannerPosition(bias.x, bias.y);
+		const isLink = element.classList.contains('link');
+		//Play sound file (can log sound cancellation through catch() callback if necessary)
+		try {
+			switch (elementType) {
+				case 'h1':
+				case 'h2':
+				case 'h3':
+				case 'button':
 					if (containsAdditionalSoundbite) {
-						playSound(additionalSoundFilePath)
-							.then(() => {
-								if (isLink) playSound(linkSoundFilePath).catch(() => {});
-							})
-							.catch(() => {});
+						yield playSound(additionalSoundFilePath);
+						if (isLink) {
+							yield playSound(soundFilePath);
+							yield playSound(linkSoundFilePath);
+						} else yield playSound(soundFilePath);
+					} else {
+						if (isLink) {
+							yield playSound(soundFilePath);
+							yield playSound(linkSoundFilePath);
+						} else yield playSound(soundFilePath);
 					}
-				})
-				.catch(() => {});
-			break;
-		case 'hr':
-			playSound('./assets/sound/separator.mp3').catch(() => {});
-			break;
-		case 'header':
-			playSound('./assets/sound/banner-landmark.mp3').catch(() => {});
-			break;
-		case 'main':
-			playSound('./assets/sound/main-landmark.mp3').catch(() => {});
-			break;
-		case 'nav':
-			playSound('./assets/sound/navigation-landmark.mp3').catch(() => {});
-			break;
-		case 'div':
-			if (containsAdditionalSoundbite) playSound(additionalSoundFilePath).catch(() => {});
-			break;
-	}
+					break;
+				case 'p':
+				case 'a':
+				case 'img':
+					yield playSound(soundFilePath);
+					if (containsAdditionalSoundbite) {
+						yield playSound(additionalSoundFilePath);
+						if (isLink) yield playSound(linkSoundFilePath);
+					}
+					break;
+				case 'hr':
+					yield playSound('./assets/sound/separator.mp3');
+					break;
+				case 'header':
+					yield playSound('./assets/sound/banner-landmark.mp3');
+					break;
+				case 'main':
+					yield playSound('./assets/sound/main-landmark.mp3');
+					break;
+				case 'nav':
+					yield playSound('./assets/sound/navigation-landmark.mp3');
+					break;
+				case 'div':
+					if (containsAdditionalSoundbite) yield playSound(additionalSoundFilePath);
+					break;
+			}
+		} catch (_a) {}
+	});
 }
 function getBaseFilePath(elementType) {
 	switch (elementType) {
@@ -185,3 +205,13 @@ function openAlert(node) {
 		})
 		.catch(() => {});
 }
+export function removeSelection() {
+	document.activeElement.blur();
+}
+// Deselect currently selected element when changing tabs. Prevents unintended interruptions during studies.
+window.addEventListener('blur', () => {
+	removeSelection();
+});
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'Escape') removeSelection();
+});
